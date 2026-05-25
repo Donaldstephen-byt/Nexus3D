@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import Scene from './components/scene/Scene.vue'
 import Overlay from './components/ui/Overlay.vue'
 
@@ -8,9 +8,21 @@ const autoRotate = ref(false)
 const starsActive = ref(false)
 const bloomIntensity = ref(2.5)
 const neonColor = ref('#00cfff')
+const bgColor = ref('#080810')
+const motionActive = ref(true)
+const motionKey = ref(0)
 
 // Active node selection state
 const selectedPanel = ref(null)
+
+// Reset floating positions whenever motion state changes (e.g. toggled to off or on)
+watch(motionActive, () => {
+  motionKey.value++
+})
+
+const resetPositions = () => {
+  motionKey.value++
+}
 
 const selectPanel = (panelInfo) => {
   selectedPanel.value = panelInfo
@@ -30,6 +42,9 @@ const clearSelection = () => {
         :stars-active="starsActive"
         :bloom-intensity="bloomIntensity"
         :neon-color="neonColor"
+        :bg-color="bgColor"
+        :motion-active="motionActive"
+        :motion-key="motionKey"
         @select-panel="selectPanel"
       />
     </div>
@@ -40,8 +55,11 @@ const clearSelection = () => {
       v-model:stars-active="starsActive"
       v-model:bloom-intensity="bloomIntensity"
       v-model:neon-color="neonColor"
+      v-model:bg-color="bgColor"
+      v-model:motion-active="motionActive"
       :selected-panel="selectedPanel"
       @clear-selection="clearSelection"
+      @reset-positions="resetPositions"
     />
   </div>
 </template>

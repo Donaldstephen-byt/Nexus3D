@@ -10,6 +10,10 @@ const props = defineProps({
   neonColor: {
     type: String,
     default: '#00cfff'
+  },
+  motionActive: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -82,7 +86,11 @@ const emit = defineEmits(['select-panel'])
     <!-- 3. EXPLODED GLASS CIRCUITS (Floating stacks of processing layers) -->
     
     <!-- Layer 1: Bottom Logic Gates -->
-    <Levioso :speed="0.9" :float-intensity="0.2" :rotation-intensity="0.1">
+    <Levioso 
+      :speed="props.motionActive ? 0.9 : 0" 
+      :float-intensity="props.motionActive ? 0.2 : 0" 
+      :rotation-intensity="props.motionActive ? 0.1 : 0"
+    >
       <TresMesh :position="[0, -0.6, 0]">
         <TresBoxGeometry :args="[1.8, 0.02, 1.8]" />
         <TresMeshStandardMaterial
@@ -107,7 +115,11 @@ const emit = defineEmits(['select-panel'])
     </Levioso>
 
     <!-- Layer 2: Middle Interconnect routing layer -->
-    <Levioso :speed="1.2" :float-intensity="0.3" :rotation-intensity="0.15">
+    <Levioso 
+      :speed="props.motionActive ? 1.2 : 0" 
+      :float-intensity="props.motionActive ? 0.3 : 0" 
+      :rotation-intensity="props.motionActive ? 0.15 : 0"
+    >
       <TresMesh :position="[0, -0.1, 0]">
         <TresBoxGeometry :args="[1.6, 0.02, 1.6]" />
         <TresMeshStandardMaterial
@@ -132,7 +144,11 @@ const emit = defineEmits(['select-panel'])
     </Levioso>
 
     <!-- Layer 3: Top Silicon/Memory Core -->
-    <Levioso :speed="1.5" :float-intensity="0.25" :rotation-intensity="0.1">
+    <Levioso 
+      :speed="props.motionActive ? 1.5 : 0" 
+      :float-intensity="props.motionActive ? 0.25 : 0" 
+      :rotation-intensity="props.motionActive ? 0.1 : 0"
+    >
       <TresMesh :position="[0, 0.4, 0]">
         <TresBoxGeometry :args="[1.4, 0.02, 1.4]" />
         <TresMeshStandardMaterial
@@ -182,6 +198,7 @@ const emit = defineEmits(['select-panel'])
       :rotation="[0, 0, 0]"
       :size="0.65"
       :color="props.neonColor"
+      :motion-active="props.motionActive"
       name="Git Core Service"
       status="Active"
       load="14%"
@@ -196,6 +213,7 @@ const emit = defineEmits(['select-panel'])
       :rotation="[0, Math.PI / 2, 0]"
       :size="0.65"
       color="#7b2fff"
+      :motion-active="props.motionActive"
       name="Python Analytics Compiler"
       status="Active"
       load="38%"
@@ -210,6 +228,7 @@ const emit = defineEmits(['select-panel'])
       :rotation="[0, 0, 0]"
       :size="0.6"
       :color="props.neonColor"
+      :motion-active="props.motionActive"
       name="Cloud CDN Edge"
       status="Active"
       load="5%"
@@ -224,6 +243,7 @@ const emit = defineEmits(['select-panel'])
       :rotation="[0, 0, 0]"
       :size="0.6"
       :color="props.neonColor"
+      :motion-active="props.motionActive"
       name="C++ Logic Runtime"
       status="Active"
       load="8%"
@@ -238,6 +258,7 @@ const emit = defineEmits(['select-panel'])
       :rotation="[0, Math.PI / 2, 0]"
       :size="0.6"
       color="#7b2fff"
+      :motion-active="props.motionActive"
       name="Automation Scheduler"
       status="Active"
       load="18%"
@@ -252,6 +273,7 @@ const emit = defineEmits(['select-panel'])
       :rotation="[0, 0, 0]"
       :size="0.6"
       color="#7b2fff"
+      :motion-active="props.motionActive"
       name="Local Buffer DB"
       status="Idle"
       load="1%"

@@ -12,6 +12,10 @@ const props = defineProps({
   neonColor: {
     type: String,
     default: '#00cfff'
+  },
+  motionActive: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -82,7 +86,11 @@ const selectPanel = (name, status, load, description, color) => {
   <TresGroup :position="props.position" :rotation="[0, -Math.PI / 6, 0]">
 
     <!-- 1. NEURAL NETWORK GRAPH -->
-    <Levioso :speed="0.8" :float-intensity="0.25" :rotation-intensity="0.1">
+    <Levioso 
+      :speed="props.motionActive ? 0.8 : 0" 
+      :float-intensity="props.motionActive ? 0.25 : 0" 
+      :rotation-intensity="props.motionActive ? 0.1 : 0"
+    >
       <TresGroup :position="[-0.4, 0.2, 0.2]">
         
         <!-- Synapse lines connecting layers -->
@@ -151,7 +159,11 @@ const selectPanel = (name, status, load, description, color) => {
     </Levioso>
 
     <!-- 2. DOUBLE CYLINDER DATABASE UNITS -->
-    <Levioso :speed="1.1" :float-intensity="0.2" :rotation-intensity="0.05">
+    <Levioso 
+      :speed="props.motionActive ? 1.1 : 0" 
+      :float-intensity="props.motionActive ? 0.2 : 0" 
+      :rotation-intensity="props.motionActive ? 0.05 : 0"
+    >
       <!-- Database Stack A -->
       <TresGroup :position="[0.8, -0.6, -0.6]">
         
@@ -213,6 +225,7 @@ const selectPanel = (name, status, load, description, color) => {
       :rotation="[0, Math.PI / 2, 0]"
       :size="0.5"
       color="#7b2fff"
+      :motion-active="props.motionActive"
       name="Automation Scheduler"
       status="Active"
       load="18%"
@@ -227,6 +240,7 @@ const selectPanel = (name, status, load, description, color) => {
       :rotation="[0, 0, 0]"
       :size="0.5"
       :color="props.neonColor"
+      :motion-active="props.motionActive"
       name="ML Feature Compiler"
       status="Active"
       load="22%"
@@ -241,6 +255,7 @@ const selectPanel = (name, status, load, description, color) => {
       :rotation="[0, Math.PI / 2, 0]"
       :size="0.5"
       :color="props.neonColor"
+      :motion-active="props.motionActive"
       name="System Analytics Engine"
       status="Active"
       load="29%"
@@ -255,6 +270,7 @@ const selectPanel = (name, status, load, description, color) => {
       :rotation="[0, 0, 0]"
       :size="0.5"
       :color="props.neonColor"
+      :motion-active="props.motionActive"
       name="Cognitive Logic Array"
       status="Processing"
       load="84%"
@@ -269,6 +285,7 @@ const selectPanel = (name, status, load, description, color) => {
       :rotation="[0, 0, 0]"
       :size="0.5"
       color="#7b2fff"
+      :motion-active="props.motionActive"
       name="Synapse Ledger"
       status="Active"
       load="15%"

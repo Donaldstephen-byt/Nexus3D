@@ -13,6 +13,10 @@ const props = defineProps({
   count: {
     type: Number,
     default: 60
+  },
+  motionActive: {
+    type: Boolean,
+    default: true
   }
 })
 </script>
@@ -23,7 +27,7 @@ const props = defineProps({
     :count="props.count"
     :scale="3"
     :size="1.5"
-    :speed="0.4"
+    :speed="props.motionActive ? 0.4 : 0"
     :color="props.color"
   />
 </template>

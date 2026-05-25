@@ -1,11 +1,13 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 
 const props = defineProps({
   autoRotate: Boolean,
   starsActive: Boolean,
   bloomIntensity: Number,
   neonColor: String,
+  bgColor: String,
+  motionActive: Boolean,
   selectedPanel: Object
 })
 
@@ -14,22 +16,99 @@ const emit = defineEmits([
   'update:starsActive',
   'update:bloomIntensity',
   'update:neonColor',
-  'clear-selection'
+  'update:bgColor',
+  'update:motionActive',
+  'clear-selection',
+  'reset-positions'
 ])
 
 const isMinimized = ref(false)
+const customColorInput = ref(null)
+const customBgColorInput = ref(null)
+
+// Computed reactive color states for dynamic glassy button styling
+const buttonGlowColor = computed(() => props.neonColor || '#00cfff')
+const buttonBorderColor = computed(() => {
+  return (props.neonColor || '#00cfff') + '4D' // 30% opacity hex
+})
+const buttonHoverBorderColor = computed(() => {
+  return props.neonColor || '#00cfff'
+})
+const buttonActiveBg = computed(() => {
+  return (props.neonColor || '#00cfff') + '33' // 20% opacity hex
+})
+
+const buttonSecondaryBorderColor = computed(() => {
+  return 'rgba(239, 68, 68, 0.3)'
+})
+const buttonSecondaryHoverBorderColor = computed(() => {
+  return '#ef4444'
+})
+const buttonSecondaryActiveBg = computed(() => {
+  return 'rgba(239, 68, 68, 0.2)'
+})
 
 const toggleMinimize = () => {
   isMinimized.value = !isMinimized.value
 }
 
-// Preset color chips
+// Preset neon color chips
 const colors = [
   { name: 'Neon Blue', value: '#00cfff' },
   { name: 'Neon Purple', value: '#7b2fff' },
   { name: 'Hot Pink', value: '#ff007b' },
-  { name: 'Amber Gold', value: '#ffb800' }
+  { name: 'Amber Gold', value: '#ffb800' },
+  { name: 'Cyber Green', value: '#00ff66' },
+  { name: 'Electric Orange', value: '#ff5e00' },
+  { name: 'Laser Red', value: '#ff003c' },
+  { name: 'Plasma Cyan', value: '#0df2c9' }
 ]
+
+// Preset background color chips
+const bgColors = [
+  { name: 'Deep Space', value: '#080810' },
+  { name: 'Void Black', value: '#000000' },
+  { name: 'Synthwave', value: '#160a20' },
+  { name: 'Cyber Deck', value: '#111a1e' }
+]
+
+const isCustomActive = computed(() => {
+  return !colors.some(c => c.value.toLowerCase() === props.neonColor?.toLowerCase())
+})
+
+const isCustomBgActive = computed(() => {
+  return !bgColors.some(c => c.value.toLowerCase() === props.bgColor?.toLowerCase())
+})
+
+const customChipStyle = computed(() => {
+  if (isCustomActive.value) {
+    return {
+      background: props.neonColor,
+      boxShadow: `0 0 10px ${props.neonColor}`,
+      border: '2px solid #fff'
+    }
+  } else {
+    return {
+      background: 'linear-gradient(135deg, #ff007b 0%, #7b2fff 50%, #00cfff 100%)',
+      border: '2px dashed rgba(255, 255, 255, 0.4)'
+    }
+  }
+})
+
+const customBgChipStyle = computed(() => {
+  if (isCustomBgActive.value) {
+    return {
+      background: props.bgColor,
+      boxShadow: `0 0 10px ${props.bgColor}`,
+      border: '2px solid #fff'
+    }
+  } else {
+    return {
+      background: 'linear-gradient(135deg, #111a1e 0%, #160a20 50%, #080810 100%)',
+      border: '2px dashed rgba(255, 255, 255, 0.4)'
+    }
+  }
+})
 
 const toggleAutoRotate = () => {
   emit('update:autoRotate', !props.autoRotate)
@@ -39,12 +118,68 @@ const toggleStars = () => {
   emit('update:starsActive', !props.starsActive)
 }
 
+const toggleMotion = () => {
+  emit('update:motionActive', !props.motionActive)
+}
+
 const updateBloom = (e) => {
   emit('update:bloomIntensity', parseFloat(e.target.value))
 }
 
 const selectColor = (val) => {
   emit('update:neonColor', val)
+}
+
+const selectBgColor = (val) => {
+  emit('update:bgColor', val)
+}
+
+const triggerColorPicker = () => {
+  if (customColorInput.value) {
+    customColorInput.value.click()
+  }
+}
+
+const triggerBgColorPicker = () => {
+  if (customBgColorInput.value) {
+    customBgColorInput.value.click()
+  }
+}
+
+const selectCustomColor = (e) => {
+  emit('update:neonColor', e.target.value)
+}
+
+const selectCustomBgColor = (e) => {
+  emit('update:bgColor', e.target.value)
+}
+
+const updateColorHex = (e) => {
+  let val = e.target.value.trim()
+  if (val && !val.startsWith('#')) {
+    val = '#' + val
+  }
+  // Validate regex for hex color
+  if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+    emit('update:neonColor', val)
+  } else {
+    // Reset input to current color on invalid format
+    e.target.value = props.neonColor?.toUpperCase() || ''
+  }
+}
+
+const updateBgColorHex = (e) => {
+  let val = e.target.value.trim()
+  if (val && !val.startsWith('#')) {
+    val = '#' + val
+  }
+  // Validate regex for hex color
+  if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+    emit('update:bgColor', val)
+  } else {
+    // Reset input to current color on invalid format
+    e.target.value = props.bgColor?.toUpperCase() || ''
+  }
 }
 </script>
 
@@ -98,6 +233,28 @@ const selectColor = (val) => {
         </div>
 
         <div class="control-group">
+          <label class="control-label">LEVITATION MOTION</label>
+          <button 
+            id="btn-toggle-motion"
+            :class="['hud-button', { active: props.motionActive }]"
+            @click="toggleMotion"
+          >
+            {{ props.motionActive ? 'SYSTEM_MOTION: ON' : 'SYSTEM_MOTION: OFF' }}
+          </button>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">ALIGNMENT RESET</label>
+          <button 
+            id="btn-reset-positions"
+            class="hud-button secondary"
+            @click="emit('reset-positions')"
+          >
+            RESET SYSTEM POSITIONS
+          </button>
+        </div>
+
+        <div class="control-group">
           <label class="control-label">GLOW BLOOM: {{ props.bloomIntensity.toFixed(1) }}</label>
           <input 
             id="input-bloom-intensity"
@@ -113,16 +270,107 @@ const selectColor = (val) => {
 
         <div class="control-group">
           <label class="control-label">NEON CORE VECTOR COLOR</label>
-          <div class="color-chips">
-            <button 
-              v-for="c in colors" 
-              :key="c.value"
-              :id="'btn-color-' + c.name.toLowerCase().replace(' ', '-')"
-              :class="['color-chip', { active: props.neonColor === c.value }]"
-              :style="{ backgroundColor: c.value, boxShadow: props.neonColor === c.value ? `0 0 10px ${c.value}` : 'none' }"
-              @click="selectColor(c.value)"
-              :title="c.name"
-            />
+          <div class="color-chips-container">
+            <div class="color-chips">
+              <button 
+                v-for="c in colors" 
+                :key="c.value"
+                :id="'btn-color-' + c.name.toLowerCase().replace(' ', '-')"
+                :class="['color-chip', { active: props.neonColor === c.value }]"
+                :style="{ backgroundColor: c.value, boxShadow: props.neonColor === c.value ? `0 0 10px ${c.value}` : 'none' }"
+                @click="selectColor(c.value)"
+                :title="c.name"
+              />
+              
+              <!-- Custom color trigger chip -->
+              <div class="custom-chip-container">
+                <input
+                  ref="customColorInput"
+                  id="input-custom-color"
+                  type="color"
+                  :value="isCustomActive ? props.neonColor : '#ffffff'"
+                  @input="selectCustomColor"
+                  class="custom-color-input-hidden"
+                />
+                <button
+                  id="btn-color-custom"
+                  type="button"
+                  :class="['color-chip', 'custom-chip', { active: isCustomActive }]"
+                  :style="customChipStyle"
+                  @click="triggerColorPicker"
+                  title="Custom Spectrum"
+                >
+                  <span v-if="!isCustomActive" class="plus-icon">+</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="color-value-display">
+              <span class="color-hex-label">ACTIVE SIGNAL:</span>
+              <input 
+                id="input-hex-color"
+                type="text" 
+                class="hud-hex-input" 
+                :value="props.neonColor?.toUpperCase()" 
+                @change="updateColorHex"
+                @keyup.enter="updateColorHex"
+                placeholder="#FFFFFF"
+                maxlength="7"
+              />
+            </div>
+          </div>
+        </div>
+
+        <div class="control-group">
+          <label class="control-label">GRID FIELD BACKGROUND</label>
+          <div class="color-chips-container">
+            <div class="color-chips">
+              <button 
+                v-for="c in bgColors" 
+                :key="c.value"
+                :id="'btn-bg-color-' + c.name.toLowerCase().replace(' ', '-')"
+                :class="['color-chip', { active: props.bgColor === c.value }]"
+                :style="{ backgroundColor: c.value, boxShadow: props.bgColor === c.value ? `0 0 10px ${c.value}` : 'none' }"
+                @click="selectBgColor(c.value)"
+                :title="c.name"
+              />
+              
+              <!-- Custom background color trigger chip -->
+              <div class="custom-chip-container">
+                <input
+                  ref="customBgColorInput"
+                  id="input-custom-bg-color"
+                  type="color"
+                  :value="isCustomBgActive ? props.bgColor : '#ffffff'"
+                  @input="selectCustomBgColor"
+                  class="custom-color-input-hidden"
+                />
+                <button
+                  id="btn-bg-color-custom"
+                  type="button"
+                  :class="['color-chip', 'custom-chip', { active: isCustomBgActive }]"
+                  :style="customBgChipStyle"
+                  @click="triggerBgColorPicker"
+                  title="Custom Background"
+                >
+                  <span v-if="!isCustomBgActive" class="plus-icon">+</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="color-value-display">
+              <span class="color-hex-label">ACTIVE BG SIGNAL:</span>
+              <input 
+                id="input-hex-bg-color"
+                type="text" 
+                class="hud-hex-input" 
+                :value="props.bgColor?.toUpperCase()" 
+                @change="updateBgColorHex"
+                @keyup.enter="updateBgColorHex"
+                placeholder="#FFFFFF"
+                maxlength="7"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -305,44 +553,95 @@ const selectColor = (val) => {
 }
 
 .hud-button {
+  position: relative;
+  overflow: hidden;
   width: 100%;
-  background: rgba(0, 207, 255, 0.05);
-  border: 1px solid rgba(0, 207, 255, 0.3);
-  color: #00cfff;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid v-bind(buttonBorderColor);
+  color: v-bind(buttonHoverBorderColor);
   padding: 10px;
   border-radius: 6px;
   cursor: pointer;
   font-family: monospace;
   font-weight: bold;
   font-size: 12px;
-  transition: all 0.2s ease;
-  text-shadow: 0 0 4px rgba(0, 207, 255, 0.3);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-shadow: 0 0 4px v-bind(buttonBorderColor);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hud-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: left 0.75s ease;
+  pointer-events: none;
 }
 
 .hud-button:hover {
-  background: rgba(0, 207, 255, 0.2);
-  border-color: #00cfff;
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border-color: v-bind(buttonHoverBorderColor);
   color: #fff;
-  box-shadow: 0 0 12px rgba(0, 207, 255, 0.3);
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.2), 
+    0 4px 15px rgba(0, 0, 0, 0.4), 
+    0 0 15px v-bind(buttonActiveBg);
+  text-shadow: 0 0 8px v-bind(buttonHoverBorderColor);
+}
+
+.hud-button:hover::before {
+  left: 150%;
 }
 
 .hud-button.active {
-  background: rgba(0, 207, 255, 0.25);
-  border-color: #00cfff;
+  background: linear-gradient(135deg, v-bind(buttonActiveBg) 0%, rgba(255, 255, 255, 0.05) 100%);
+  border-color: v-bind(buttonHoverBorderColor);
   color: #fff;
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.2), 
+    0 0 15px v-bind(buttonActiveBg);
+  text-shadow: 0 0 8px v-bind(buttonHoverBorderColor);
+}
+
+.hud-button.active:hover {
+  background: linear-gradient(135deg, v-bind(buttonActiveBg) 0%, rgba(255, 255, 255, 0.1) 100%);
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.3), 
+    0 4px 15px rgba(0, 0, 0, 0.4), 
+    0 0 20px v-bind(buttonActiveBg);
 }
 
 .hud-button.secondary {
-  background: rgba(239, 68, 68, 0.05);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: #ef4444;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  border-color: v-bind(buttonSecondaryBorderColor);
+  color: v-bind(buttonSecondaryHoverBorderColor);
+  text-shadow: 0 0 4px v-bind(buttonSecondaryBorderColor);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .hud-button.secondary:hover {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: #ef4444;
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border-color: v-bind(buttonSecondaryHoverBorderColor);
   color: #fff;
-  box-shadow: 0 0 12px rgba(239, 68, 68, 0.3);
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.2), 
+    0 4px 15px rgba(0, 0, 0, 0.4), 
+    0 0 15px v-bind(buttonSecondaryActiveBg);
+  text-shadow: 0 0 8px v-bind(buttonSecondaryHoverBorderColor);
 }
 
 .hud-slider {
@@ -351,9 +650,16 @@ const selectColor = (val) => {
   cursor: pointer;
 }
 
+.color-chips-container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .color-chips {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .color-chip {
@@ -372,6 +678,73 @@ const selectColor = (val) => {
 .color-chip.active {
   border-color: #fff;
   transform: scale(1.1);
+}
+
+.custom-chip-container {
+  position: relative;
+  display: inline-block;
+}
+
+.custom-color-input-hidden {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.color-chip.custom-chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.plus-icon {
+  margin: 0;
+  padding: 0;
+  display: inline-block;
+  transform: translateY(-1px);
+}
+
+.color-value-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(0, 207, 255, 0.03);
+  border: 1px solid rgba(0, 207, 255, 0.15);
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-top: 4px;
+}
+
+.color-hex-label {
+  font-size: 10px;
+  color: #6b7280;
+  letter-spacing: 0.5px;
+}
+
+.hud-hex-input {
+  background: transparent;
+  border: none;
+  color: #00cfff;
+  font-family: monospace;
+  font-size: 12px;
+  font-weight: bold;
+  text-align: right;
+  width: 80px;
+  outline: none;
+  letter-spacing: 1px;
+}
+
+.hud-hex-input:focus {
+  color: #fff;
+  text-shadow: 0 0 5px rgba(0, 207, 255, 0.8);
 }
 
 /* Inspector */
@@ -523,9 +896,13 @@ const selectColor = (val) => {
 
 /* Holographic toggle button */
 .hud-toggle-btn {
-  background: rgba(0, 207, 255, 0.05);
-  border: 1px solid rgba(0, 207, 255, 0.4);
-  color: #00cfff;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.01) 100%);
+  backdrop-filter: blur(8px) saturate(120%);
+  -webkit-backdrop-filter: blur(8px) saturate(120%);
+  border: 1px solid v-bind(buttonBorderColor);
+  color: v-bind(buttonHoverBorderColor);
   padding: 6px 12px;
   border-radius: 4px;
   font-family: monospace;
@@ -533,14 +910,42 @@ const selectColor = (val) => {
   font-weight: bold;
   cursor: pointer;
   letter-spacing: 0.5px;
-  transition: all 0.2s ease;
-  box-shadow: 0 0 8px rgba(0, 207, 255, 0.1);
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-shadow: 0 0 4px v-bind(buttonBorderColor);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.hud-toggle-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.2) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  transition: left 0.75s ease;
+  pointer-events: none;
 }
 
 .hud-toggle-btn:hover {
-  background: rgba(0, 207, 255, 0.2);
-  border-color: #00cfff;
+  transform: translateY(-1px);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.03) 100%);
+  border-color: v-bind(buttonHoverBorderColor);
   color: #fff;
-  box-shadow: 0 0 12px rgba(0, 207, 255, 0.3);
+  box-shadow: 
+    inset 0 1px 2px rgba(255, 255, 255, 0.2), 
+    0 4px 15px rgba(0, 0, 0, 0.4), 
+    0 0 15px v-bind(buttonActiveBg);
+  text-shadow: 0 0 8px v-bind(buttonHoverBorderColor);
+}
+
+.hud-toggle-btn:hover::before {
+  left: 150%;
 }
 </style>

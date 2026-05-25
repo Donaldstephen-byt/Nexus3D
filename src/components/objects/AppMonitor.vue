@@ -12,6 +12,10 @@ const props = defineProps({
   neonColor: {
     type: String,
     default: '#00cfff'
+  },
+  motionActive: {
+    type: Boolean,
+    default: true
   }
 })
 
@@ -48,7 +52,11 @@ const selectPanel = (name, status, load, description, color) => {
   <TresGroup :position="props.position" :rotation="[0, -Math.PI / 6, 0]">
     
     <!-- 1. LAYERED WINDOW 1: Main Browser Panel (Middle panel) -->
-    <Levioso :speed="0.8" :float-intensity="0.3" :rotation-intensity="0.1">
+    <Levioso 
+      :speed="props.motionActive ? 0.8 : 0" 
+      :float-intensity="props.motionActive ? 0.3 : 0" 
+      :rotation-intensity="props.motionActive ? 0.1 : 0"
+    >
       <TresGroup :position="[0.0, 0.4, -0.1]">
         <!-- Browser plate -->
         <TresMesh 
@@ -77,7 +85,11 @@ const selectPanel = (name, status, load, description, color) => {
     </Levioso>
 
     <!-- 2. LAYERED WINDOW 2: Terminal/IDE (Front panel, shifted left and forward) -->
-    <Levioso :speed="1.1" :float-intensity="0.4" :rotation-intensity="0.15">
+    <Levioso 
+      :speed="props.motionActive ? 1.1 : 0" 
+      :float-intensity="props.motionActive ? 0.4 : 0" 
+      :rotation-intensity="props.motionActive ? 0.15 : 0"
+    >
       <TresGroup :position="[-0.5, 0.1, 0.4]">
         <!-- Terminal plate -->
         <TresMesh 
@@ -106,7 +118,11 @@ const selectPanel = (name, status, load, description, color) => {
     </Levioso>
 
     <!-- 3. LAYERED WINDOW 3: Background Code Plane (Shifted right and backmost) -->
-    <Levioso :speed="0.6" :float-intensity="0.2" :rotation-intensity="0.05">
+    <Levioso 
+      :speed="props.motionActive ? 0.6 : 0" 
+      :float-intensity="props.motionActive ? 0.2 : 0" 
+      :rotation-intensity="props.motionActive ? 0.05 : 0"
+    >
       <TresGroup :position="[0.6, 0.35, -0.6]">
         <!-- Tech grid plate -->
         <TresMesh>
@@ -138,6 +154,7 @@ const selectPanel = (name, status, load, description, color) => {
       :rotation="[0, 0, 0]"
       :size="0.35"
       :color="props.neonColor"
+      :motion-active="props.motionActive"
       name="HUD Mini Git Linker"
       status="Active"
       load="4%"
@@ -150,6 +167,7 @@ const selectPanel = (name, status, load, description, color) => {
       :rotation="[0, 0, 0]"
       :size="0.35"
       :color="props.neonColor"
+      :motion-active="props.motionActive"
       name="HUD Mini Cloud Sync"
       status="Active"
       load="2%"
@@ -162,6 +180,7 @@ const selectPanel = (name, status, load, description, color) => {
       :rotation="[0, 0, 0]"
       :size="0.35"
       color="#7b2fff"
+      :motion-active="props.motionActive"
       name="HUD Mini Data Cache"
       status="Idle"
       load="1%"
@@ -170,7 +189,11 @@ const selectPanel = (name, status, load, description, color) => {
     />
 
     <!-- 5. SERVER MODULE (Upright hardware cabinet) -->
-    <Levioso :speed="0.9" :float-intensity="0.1" :rotation-intensity="0.05">
+    <Levioso 
+      :speed="props.motionActive ? 0.9 : 0" 
+      :float-intensity="props.motionActive ? 0.1 : 0" 
+      :rotation-intensity="props.motionActive ? 0.05 : 0"
+    >
       <TresGroup :position="[1.6, -0.35, 0.1]">
         <!-- Main Chassis -->
         <TresMesh 

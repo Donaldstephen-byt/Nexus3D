@@ -25,6 +25,18 @@ const props = defineProps({
   neonColor: {
     type: String,
     default: '#00cfff'
+  },
+  bgColor: {
+    type: String,
+    default: '#080810'
+  },
+  motionActive: {
+    type: Boolean,
+    default: true
+  },
+  motionKey: {
+    type: Number,
+    default: 0
   }
 })
 
@@ -62,7 +74,7 @@ const routeCenterToRight2 = [
 
 <template>
   <TresCanvas
-    clear-color="#080810"
+    :clear-color="props.bgColor"
   >
     <TresPerspectiveCamera :position="[8.0, 5.5, 10.0]" :fov="50" />
     <Lights />
@@ -79,26 +91,32 @@ const routeCenterToRight2 = [
 
     <!-- LEFT CLUSTER: Exploded chip stack & core developer tools -->
     <ExplodedStack
+      :key="props.motionKey"
       :position="[-4.5, -0.6, 1.5]"
       :neon-color="props.neonColor"
+      :motion-active="props.motionActive"
       @select-panel="emit('select-panel', $event)"
     />
-    <ParticleCloud :position="[-4.5, -0.6, 1.5]" :color="props.neonColor" :count="40" />
+    <ParticleCloud :position="[-4.5, -0.6, 1.5]" :color="props.neonColor" :count="40" :motion-active="props.motionActive" />
 
     <!-- CENTER CLUSTER: Layered workspace panels & server unit -->
     <AppMonitor
+      :key="props.motionKey"
       :position="[0, 0.1, 0]"
       :neon-color="props.neonColor"
+      :motion-active="props.motionActive"
       @select-panel="emit('select-panel', $event)"
     />
 
     <!-- RIGHT CLUSTER: Neural Net and database layers -->
     <NeuralNet
+      :key="props.motionKey"
       :position="[4.5, 0.8, -1.5]"
       :neon-color="props.neonColor"
+      :motion-active="props.motionActive"
       @select-panel="emit('select-panel', $event)"
     />
-    <ParticleCloud :position="[4.5, 0.8, -1.5]" color="#7b2fff" :count="30" />
+    <ParticleCloud :position="[4.5, 0.8, -1.5]" color="#7b2fff" :count="30" :motion-active="props.motionActive" />
 
     <!-- ISOMETRIC NEON PIPELINES (Data flow paths) -->
     <!-- Left to Center (cyan/preset) -->

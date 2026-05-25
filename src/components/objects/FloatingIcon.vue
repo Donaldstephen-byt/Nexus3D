@@ -28,6 +28,10 @@ const props = defineProps({
     type: Array,
     default: () => [0, 0, 0]
   },
+  motionActive: {
+    type: Boolean,
+    default: true
+  },
   // Telemetry metadata for inspection
   name: {
     type: String,
@@ -74,7 +78,11 @@ const handleClick = () => {
 </script>
 
 <template>
-  <Levioso :speed="props.speed" :float-intensity="0.4" :rotation-intensity="0.2">
+  <Levioso 
+    :speed="props.motionActive ? props.speed : 0" 
+    :float-intensity="props.motionActive ? 0.4 : 0" 
+    :rotation-intensity="props.motionActive ? 0.2 : 0"
+  >
     <!-- Main interactive glass plate -->
     <TresMesh :position="props.position" :rotation="props.rotation" @click="handleClick">
       <TresBoxGeometry :args="[props.size, props.size, 0.02]" />
